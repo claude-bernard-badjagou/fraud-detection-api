@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 import requests
 import pandas as pd
@@ -7,10 +8,8 @@ from datetime import datetime
 import plotly.graph_objects as go
 import plotly.express as px
 
-# =============================================================================
+
 # CONFIGURATION
-# =============================================================================
-API_URL = "http://localhost:8000"
 
 st.set_page_config(
     page_title="Fraud Detection Dashboard",
@@ -18,6 +17,16 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# Bascule automatique local / production
+
+API_URL_LOCAL      = "http://localhost:8000"
+API_URL_PRODUCTION = "https://fraud-detection-api-production-9fb6.up.railway.app"
+
+with st.sidebar:
+    env = st.radio("Environnement", ["Local", "Production"], index=0)
+    API_URL = API_URL_PRODUCTION if env == "Production" else API_URL_LOCAL
+    st.markdown("---")
 
 st.markdown("""
 <style>
