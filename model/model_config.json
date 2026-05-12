@@ -1,0 +1,28 @@
+{
+  "model_type": "xgboost",
+  "model_file": "model.json",
+  "onnx_file": null,
+  "threshold": 0.7426,
+  "n_features": 210,
+  "features_file": "feature_cols.json",
+  "metrics": {
+    "auc_roc": 0.9269,
+    "pr_auc": 0.5698,
+    "precision_fraud": 0.63,
+    "recall_fraud": 0.5,
+    "f1_fraud": 0.56
+  },
+  "preprocessing": {
+    "fill_na": -999,
+    "replace_inf": -999,
+    "added_features": [
+      "C1_C14_ratio",
+      "C1_C13_ratio",
+      "D1_D15_diff",
+      "amt_cents"
+    ]
+  },
+  "version": "1.0.0",
+  "trained_on": "IEEE-CIS Fraud Detection",
+  "date": "2025-01-01"
+}
