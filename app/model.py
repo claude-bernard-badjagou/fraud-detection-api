@@ -4,6 +4,7 @@ import json
 import joblib
 from pathlib import Path
 from .preprocessing import preprocess_transaction, FEATURE_COLS
+from .monitoring import log_prediction
 
 MODEL_DIR = Path(__file__).parent.parent / "model"
 
@@ -17,12 +18,11 @@ with open(MODEL_DIR / "model_config.json", "r") as f:
     _config = json.load(f)
 
 def predict_single(data: dict) -> dict:
-    """Prediction pour une transaction."""
     features = preprocess_transaction(data)
-    dmatrix = xgb.DMatrix(features, feature_names=FEATURE_COLS)
-    proba = float(_booster.predict(dmatrix)[0])
+    dmatrix  = xgb.DMatrix(features, feature_names=FEATURE_COLS)
+    proba    = float(_booster.predict(dmatrix)[0])
     is_fraud = proba >= _threshold
-    
+
     if proba >= 0.9:
         risk = "CRITICAL"
     elif proba >= _threshold:
@@ -32,12 +32,17 @@ def predict_single(data: dict) -> dict:
     else:
         risk = "LOW"
 
-    return {
+    result = {
         "fraud_probability": round(proba, 4),
-        "is_fraud": is_fraud,
-        "threshold": _threshold,
-        "risk_level": risk
+        "is_fraud":          is_fraud,
+        "threshold":         _threshold,
+        "risk_level":        risk
     }
+
+    # Logger chaque prediction
+    log_prediction(data, result)
+
+    return result
 
 def predict_batch(transactions: list) -> list:
     """Prediction pour un batch."""

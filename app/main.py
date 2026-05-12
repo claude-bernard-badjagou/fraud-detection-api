@@ -5,6 +5,7 @@ from .schemas import (
     HealthResponse, ModelInfoResponse
 )
 from .model import predict_single, predict_batch, get_model_info
+from .monitoring import load_logs, compute_stats
 
 app = FastAPI(
     title="Fraud Detection API",
@@ -24,6 +25,11 @@ def health():
 @app.get("/model/info", response_model=ModelInfoResponse)
 def model_info():
     return get_model_info()
+
+@app.get("/monitoring/stats")
+def monitoring_stats():
+    entries = load_logs()
+    return compute_stats(entries)
 
 @app.post("/predict", response_model=PredictionOutput)
 def predict(transaction: TransactionInput):

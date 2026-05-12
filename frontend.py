@@ -309,11 +309,12 @@ st.markdown("<hr>", unsafe_allow_html=True)
 # =============================================================================
 # ONGLETS
 # =============================================================================
-tab1, tab2, tab3, tab4 = st.tabs([
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "Prediction manuelle",
     "Batch CSV",
     "Metriques du modele",
-    "Historique"
+    "Historique",
+    "Monitoring"
 ])
 
 
@@ -657,3 +658,66 @@ with tab4:
             "Aucune prediction effectuee pour l'instant. "
             "Utilise l'onglet 'Prediction manuelle' ou 'Batch CSV'."
         )
+
+
+# ------------------------------------------------------------------ ONGLET 5
+with tab5:
+    st.markdown("### Monitoring de production")
+
+    try:
+        r = requests.get(f"{API_URL}/monitoring/stats", timeout=5)
+        if r.status_code == 200:
+            stats = r.json()
+
+            if stats.get("total", 0) == 0:
+                st.info("Aucune prediction enregistree pour l'instant.")
+            else:
+                m1, m2, m3, m4 = st.columns(4)
+                m1.metric("Total predictions",  stats["total"])
+                m2.metric("Fraudes detectees",  stats["fraud_count"])
+                m3.metric("Taux de fraude",
+                          f"{stats['fraud_rate'] * 100:.2f}%")
+                m4.metric("Proba moyenne",
+                          f"{stats['proba_mean']:.4f}")
+
+                st.markdown("---")
+                col_a, col_b = st.columns(2)
+
+                with col_a:
+                    # Distribution des niveaux de risque
+                    risk_data = stats["risk_counts"]
+                    fig_risk  = go.Figure(go.Bar(
+                        x=list(risk_data.keys()),
+                        y=list(risk_data.values()),
+                        marker_color=["#ef4444","#f97316","#eab308","#22c55e"]
+                    ))
+                    fig_risk.update_layout(
+                        title="Distribution des niveaux de risque",
+                        paper_bgcolor="#0a0e1a",
+                        plot_bgcolor="#111827",
+                        font_color="#e2e8f0",
+                        title_font_family="IBM Plex Mono",
+                        height=300
+                    )
+                    st.plotly_chart(fig_risk, use_container_width=True)
+
+                with col_b:
+                    st.markdown("**Statistiques des probabilites**")
+                    st.markdown(f"""
+                    <div class="metric-card">
+                        <div class="metric-label">Minimum</div>
+                        <div class="metric-value">{stats['proba_min']:.4f}</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Maximum</div>
+                        <div class="metric-value">{stats['proba_max']:.4f}</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Moyenne</div>
+                        <div class="metric-value">{stats['proba_mean']:.4f}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+        else:
+            st.warning("Endpoint monitoring non disponible.")
+    except Exception:
+        st.warning("API hors ligne ou endpoint monitoring absent.")
