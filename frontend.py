@@ -24,7 +24,7 @@ API_URL_LOCAL      = "http://localhost:8000"
 API_URL_PRODUCTION = "https://fraud-detection-api-production-9fb6.up.railway.app"
 
 with st.sidebar:
-    env = st.radio("Environnement", ["Local", "Production"], index=0)
+    env = st.radio("Environnement", ["Local", "Production"], index=1)
     API_URL = API_URL_PRODUCTION if env == "Production" else API_URL_LOCAL
     st.markdown("---")
 
