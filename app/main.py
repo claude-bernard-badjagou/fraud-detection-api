@@ -26,11 +26,6 @@ def health():
 def model_info():
     return get_model_info()
 
-@app.get("/monitoring/stats")
-def monitoring_stats():
-    entries = load_logs()
-    return compute_stats(entries)
-
 @app.post("/predict", response_model=PredictionOutput)
 def predict(transaction: TransactionInput):
     try:
@@ -51,3 +46,8 @@ def predict_batch_endpoint(batch: BatchInput):
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/monitoring/stats")
+def monitoring_stats():
+    entries = load_logs()
+    return compute_stats(entries)
