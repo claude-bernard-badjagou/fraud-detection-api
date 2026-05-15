@@ -1,6 +1,6 @@
 # Fraud Detection API
 
-API de detection de fraude basee sur le dataset IEEE-CIS, avec un modele XGBoost/LightGBM et un dashboard Streamlit.
+API de détection de fraude basée sur le dataset IEEE-CIS, avec un modèle XGBoost/LightGBM et un dashboard Streamlit.
 
 ## Architecture
 
@@ -8,15 +8,15 @@ API de detection de fraude basee sur le dataset IEEE-CIS, avec un modele XGBoost
 api-fraude-detection/
 ├── app/
 │   ├── main.py            # Endpoints FastAPI
-│   ├── model.py           # Chargement et inference du modele
+│   ├── model.py           # Chargement et inférence du modèle
 │   ├── monitoring.py      # Logs et statistiques de production
-│   ├── preprocessing.py   # Preprocessing des features
-│   └── schemas.py         # Schemas Pydantic (request/response)
+│   ├── preprocessing.py   # Prétraitement des features
+│   └── schemas.py         # Schémas Pydantic (request/response)
 ├── model/
-│   ├── model.json         # Modele XGBoost serialise
-│   ├── model_config.json  # Configuration du modele (features, seuil, metriques)
-│   ├── feature_cols.json  # Liste des colonnes utilisees
-│   └── threshold.joblib   # Seuil de decision optimise
+│   ├── model.json         # Modèle XGBoost sérialisé
+│   ├── model_config.json  # Configuration du modèle (features, seuil, métriques)
+│   ├── feature_cols.json  # Liste des colonnes utilisées
+│   └── threshold.joblib   # Seuil de décision optimisé
 ├── tests/
 │   └── test_api.py        # Tests unitaires de l'API
 ├── frontend.py            # Dashboard Streamlit
@@ -29,10 +29,10 @@ api-fraude-detection/
 ## Stack technique
 
 - **API** : FastAPI + Uvicorn
-- **Modele** : XGBoost (ensemble XGBoost + LightGBM)
+- **Modèle** : XGBoost (ensemble XGBoost + LightGBM)
 - **Frontend** : Streamlit + Plotly
 - **Python** : 3.12
-- **Deploiement** : Docker / Railway
+- **Déploiement** : Docker / Railway
 
 ## Installation locale
 
@@ -41,7 +41,7 @@ api-fraude-detection/
 git clone <url-du-repo>
 cd api-fraude-detection
 
-# Installer les dependances
+# Installer les dépendances
 pip install -r requirements.txt
 ```
 
@@ -69,15 +69,15 @@ L'API est accessible sur `http://localhost:8000` et la documentation Swagger sur
 
 ## Endpoints
 
-| Methode | Route              | Description                          |
-|---------|--------------------|--------------------------------------|
-| GET     | /health            | Statut de l'API et du modele         |
-| GET     | /model/info        | Informations detaillees du modele    |
-| POST    | /predict           | Prediction sur une transaction       |
-| POST    | /predict/batch     | Prediction sur un lot de transactions|
-| GET     | /monitoring/stats  | Statistiques de production           |
+| Méthode | Route              | Description                           |
+|---------|--------------------|---------------------------------------|
+| GET     | /health            | Statut de l'API et du modèle          |
+| GET     | /model/info        | Informations détaillées du modèle     |
+| POST    | /predict           | Prédiction sur une transaction        |
+| POST    | /predict/batch     | Prédiction sur un lot de transactions |
+| GET     | /monitoring/stats  | Statistiques de production            |
 
-## Exemple de requete
+## Exemple de requête
 
 ```bash
 curl -X POST http://localhost:8000/predict \
@@ -105,13 +105,13 @@ curl -X POST http://localhost:8000/predict \
 pytest tests/
 ```
 
-## Performance du modele
+## Performance du modèle
 
 - **AUC-ROC** : 0.9269
 - **Dataset** : IEEE-CIS Fraud Detection
-- **Desequilibre** : 96.5% legitimes / 3.5% fraudes (ratio 1:27)
-- **Seuil de decision** : optimise pour maximiser le F1-score
+- **Déséquilibre** : 96.5% légitimes / 3.5% fraudes (ratio 1:27)
+- **Seuil de décision** : optimisé pour maximiser le F1-score
 
 ## Production
 
-L'API est deployee sur Railway : `https://fraud-detection-api-production-9fb6.up.railway.app`
+L'API est déployée sur Railway : `https://fraud-detection-api-production-9fb6.up.railway.app`
