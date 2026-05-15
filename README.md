@@ -114,4 +114,4 @@ pytest tests/
 
 ## Production
 
-L'API est déployée sur Railway : `https://fraud-detection-api-production-9fb6.up.railway.app`
+L'API est déployée sur Railway.
