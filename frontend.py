@@ -12,7 +12,7 @@ import plotly.express as px
 # CONFIGURATION
 
 st.set_page_config(
-    page_title="Fraud Detection Dashboard",
+    page_title="Fraud Detection",
     page_icon="shield",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -28,140 +28,267 @@ with st.sidebar:
     API_URL = API_URL_PRODUCTION if env == "Production" else API_URL_LOCAL
     st.markdown("---")
 
+SVG_SHIELD = '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5eead4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'
+SVG_ACTIVITY = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5eead4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>'
+SVG_DATABASE = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5eead4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>'
+SVG_CLOCK = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5eead4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'
+SVG_BAR_CHART = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5eead4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>'
+
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
     html, body, [class*="css"] {
-        font-family: 'IBM Plex Sans', sans-serif;
-        background-color: #0a0e1a;
-        color: #e2e8f0;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background-color: #141518;
+        color: #f4f4f5;
     }
-    .stApp { background-color: #0a0e1a; }
+    .stApp {
+        background-color: #141518;
+        color: #f4f4f5;
+    }
+    .stMarkdown, .stMarkdown p, .stMarkdown span,
+    .stMarkdown li, .stMarkdown td, .stMarkdown th,
+    [data-testid="stMarkdownContainer"],
+    [data-testid="stMarkdownContainer"] p,
+    [data-testid="stText"],
+    .stApp p, .stApp span, .stApp label,
+    .stRadio label, .stSelectbox label, .stNumberInput label,
+    .stFileUploader label {
+        color: #f4f4f5 !important;
+    }
+    section[data-testid="stSidebar"] { background-color: #1c1d21; }
+    div[data-testid="stSidebarContent"] { background-color: #1c1d21; }
+    div[data-testid="stSidebarContent"] p,
+    div[data-testid="stSidebarContent"] span,
+    div[data-testid="stSidebarContent"] label {
+        color: #f4f4f5 !important;
+    }
+
+    .block-container {
+        padding-top: 1.5rem !important;
+    }
 
     h1, h2, h3 {
-        font-family: 'IBM Plex Mono', monospace;
-        color: #e2e8f0;
-        letter-spacing: -0.02em;
+        font-family: 'Inter', sans-serif;
+        color: #f4f4f5;
+        font-weight: 600;
+        letter-spacing: -0.025em;
+    }
+
+    .app-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0 0 12px 0;
+        border-bottom: 1px solid #27272a;
+        margin-bottom: 16px;
+    }
+    .app-header h1 {
+        margin: 0;
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: #f4f4f5;
+    }
+    .app-header .version-badge {
+        background: #27272a;
+        border: 1px solid #3f3f46;
+        border-radius: 4px;
+        padding: 2px 8px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem;
+        color: #a1a1aa;
+        letter-spacing: 0.05em;
     }
 
     .metric-card {
-        background: linear-gradient(135deg, #111827 0%, #1a2235 100%);
-        border: 1px solid #1e3a5f;
+        background: #1c1d21;
+        border: 1px solid #27272a;
         border-radius: 8px;
-        padding: 20px;
-        margin: 8px 0;
+        padding: 16px;
+        margin: 6px 0;
     }
     .metric-value {
-        font-family: 'IBM Plex Mono', monospace;
-        font-size: 2rem;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1.5rem;
         font-weight: 600;
-        color: #38bdf8;
+        color: #5eead4;
     }
     .metric-label {
-        font-size: 0.75rem;
-        color: #64748b;
+        font-size: 0.7rem;
+        color: #a1a1aa;
         text-transform: uppercase;
-        letter-spacing: 0.1em;
+        letter-spacing: 0.08em;
+        margin-bottom: 4px;
     }
 
     .risk-critical {
-        background: linear-gradient(135deg, #450a0a, #7f1d1d);
-        border: 1px solid #ef4444;
-        border-radius: 8px;
-        padding: 16px 24px;
-        font-family: 'IBM Plex Mono', monospace;
-        font-size: 1.2rem;
-        font-weight: 600;
+        background: #1c1d21;
+        border: 1px solid #dc2626;
+        border-left: 4px solid #dc2626;
+        border-radius: 6px;
+        padding: 14px 20px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1rem;
+        font-weight: 500;
         color: #fca5a5;
         text-align: center;
     }
     .risk-high {
-        background: linear-gradient(135deg, #431407, #7c2d12);
-        border: 1px solid #f97316;
-        border-radius: 8px;
-        padding: 16px 24px;
-        font-family: 'IBM Plex Mono', monospace;
-        font-size: 1.2rem;
-        font-weight: 600;
+        background: #1c1d21;
+        border: 1px solid #ea580c;
+        border-left: 4px solid #ea580c;
+        border-radius: 6px;
+        padding: 14px 20px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1rem;
+        font-weight: 500;
         color: #fdba74;
         text-align: center;
     }
     .risk-medium {
-        background: linear-gradient(135deg, #422006, #713f12);
-        border: 1px solid #eab308;
-        border-radius: 8px;
-        padding: 16px 24px;
-        font-family: 'IBM Plex Mono', monospace;
-        font-size: 1.2rem;
-        font-weight: 600;
-        color: #fde047;
+        background: #1c1d21;
+        border: 1px solid #ca8a04;
+        border-left: 4px solid #ca8a04;
+        border-radius: 6px;
+        padding: 14px 20px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #fde68a;
         text-align: center;
     }
     .risk-low {
-        background: linear-gradient(135deg, #052e16, #14532d);
-        border: 1px solid #22c55e;
-        border-radius: 8px;
-        padding: 16px 24px;
-        font-family: 'IBM Plex Mono', monospace;
-        font-size: 1.2rem;
-        font-weight: 600;
+        background: #1c1d21;
+        border: 1px solid #16a34a;
+        border-left: 4px solid #16a34a;
+        border-radius: 6px;
+        padding: 14px 20px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1rem;
+        font-weight: 500;
         color: #86efac;
         text-align: center;
     }
 
     .stButton > button {
-        background: linear-gradient(135deg, #0369a1, #0284c7);
-        color: white;
+        background: #5eead4;
+        color: #000000;
         border: none;
         border-radius: 6px;
-        font-family: 'IBM Plex Mono', monospace;
+        font-family: 'Inter', sans-serif;
         font-weight: 600;
+        font-size: 0.85rem;
         padding: 10px 24px;
         width: 100%;
-        transition: all 0.2s;
+        transition: all 0.15s ease;
     }
     .stButton > button:hover {
-        background: linear-gradient(135deg, #0284c7, #0ea5e9);
+        background: #99f6e4;
+        color: #000000;
         transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(94,234,212,0.15);
     }
 
     .stTabs [data-baseweb="tab-list"] {
-        background-color: #111827;
+        background-color: #1c1d21;
         border-radius: 8px;
-        padding: 4px;
-        gap: 4px;
+        padding: 6px;
+        gap: 6px;
+        border: 1px solid #27272a;
     }
     .stTabs [data-baseweb="tab"] {
-        font-family: 'IBM Plex Mono', monospace;
-        color: #64748b;
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+        font-size: 0.82rem;
+        color: #a1a1aa;
         background-color: transparent;
         border-radius: 6px;
+        padding: 8px 16px;
+        border: 1px solid transparent;
+        transition: all 0.15s ease;
+    }
+    .stTabs [data-baseweb="tab"]:hover {
+        color: #f4f4f5;
+        background-color: #27272a;
     }
     .stTabs [aria-selected="true"] {
-        background-color: #1e3a5f !important;
-        color: #38bdf8 !important;
+        background-color: #27272a !important;
+        color: #5eead4 !important;
+        border: 1px solid #3f3f46 !important;
     }
 
-    .stDataFrame { border-radius: 8px; }
-    .stSidebar { background-color: #0d1424; }
-    div[data-testid="stSidebarContent"] { background-color: #0d1424; }
+    .stDataFrame { border-radius: 8px; overflow: hidden; }
 
-    .header-badge {
-        display: inline-block;
-        background: #1e3a5f;
-        border: 1px solid #38bdf8;
-        border-radius: 4px;
-        padding: 2px 10px;
-        font-family: 'IBM Plex Mono', monospace;
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+    .section-header h3 {
+        margin: 0;
+        font-size: 1.1rem;
+    }
+
+    div[data-testid="stMetric"] {
+        background: #1c1d21;
+        border: 1px solid #27272a;
+        border-radius: 8px;
+        padding: 12px 16px;
+    }
+    div[data-testid="stMetric"] label {
+        color: #a1a1aa;
+    }
+    div[data-testid="stMetric"] [data-testid="stMetricValue"] {
+        color: #f4f4f5;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    hr { border-color: #27272a; }
+
+    .sidebar-model-info {
         font-size: 0.7rem;
-        color: #38bdf8;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        margin-left: 10px;
-        vertical-align: middle;
+        color: #a1a1aa;
+        font-family: 'JetBrains Mono', monospace;
+        padding: 8px 0;
     }
-    hr { border-color: #1e3a5f; }
+
+    div[data-testid="stFileUploader"] {
+        border: 1px dashed #3f3f46;
+        border-radius: 8px;
+        padding: 8px;
+    }
+    div[data-testid="stFileUploader"] span,
+    div[data-testid="stFileUploader"] p,
+    div[data-testid="stFileUploader"] small,
+    div[data-testid="stFileUploader"] button,
+    div[data-testid="stFileUploader"] section span {
+        color: #000000 !important;
+    }
+
+    .stDownloadButton > button,
+    .stDownloadButton > button span,
+    .stDownloadButton > button p,
+    .stDownloadButton button,
+    [data-testid="stDownloadButton"] button,
+    [data-testid="stDownloadButton"] button span,
+    [data-testid="stDownloadButton"] button p {
+        color: #000000 !important;
+    }
+
+    .stButton > button span,
+    .stButton > button p {
+        color: #000000 !important;
+    }
+
+    input, select, textarea,
+    [data-baseweb="input"] input,
+    [data-baseweb="select"] span,
+    .stNumberInput input,
+    .stSelectbox [data-baseweb="select"] {
+        color: #1a1a1a !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -215,7 +342,7 @@ def risk_badge(level: str) -> str:
              "MEDIUM": "risk-medium", "LOW": "risk-low"}
     label = icons.get(level, level)
     cls   = css.get(level, "risk-low")
-    return f'<div class="{cls}">NIVEAU DE RISQUE : {label}</div>'
+    return f'<div class="{cls}">Risque {label}</div>'
 
 
 def gauge_chart(proba: float, threshold: float):
@@ -224,17 +351,17 @@ def gauge_chart(proba: float, threshold: float):
         mode="gauge+number",
         value=round(proba * 100, 1),
         number={"suffix": "%", "font": {"color": color, "size": 36,
-                                        "family": "IBM Plex Mono"}},
+                                        "family": "JetBrains Mono"}},
         gauge={
-            "axis": {"range": [0, 100], "tickcolor": "#334155",
-                     "tickfont": {"color": "#64748b", "size": 10}},
+            "axis": {"range": [0, 100], "tickcolor": "#3f3f46",
+                     "tickfont": {"color": "#a1a1aa", "size": 10}},
             "bar": {"color": color, "thickness": 0.25},
-            "bgcolor": "#111827",
-            "bordercolor": "#1e3a5f",
+            "bgcolor": "#1c1d21",
+            "bordercolor": "#27272a",
             "steps": [
-                {"range": [0, 30],  "color": "#052e16"},
-                {"range": [30, threshold * 100], "color": "#422006"},
-                {"range": [threshold * 100, 100], "color": "#450a0a"},
+                {"range": [0, 30],  "color": "#14332a"},
+                {"range": [30, threshold * 100], "color": "#2d2305"},
+                {"range": [threshold * 100, 100], "color": "#331111"},
             ],
             "threshold": {
                 "line": {"color": "#f59e0b", "width": 3},
@@ -245,7 +372,7 @@ def gauge_chart(proba: float, threshold: float):
     ))
     fig.update_layout(
         height=220, margin=dict(t=20, b=0, l=20, r=20),
-        paper_bgcolor="#0a0e1a", font_color="#e2e8f0"
+        paper_bgcolor="#141518", font_color="#f4f4f5"
     )
     return fig
 
@@ -254,7 +381,13 @@ def gauge_chart(proba: float, threshold: float):
 # SIDEBAR
 # =============================================================================
 with st.sidebar:
-    st.markdown("## FRAUD DETECTION")
+    st.markdown(
+        f'<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'
+        f'{SVG_SHIELD}'
+        f'<span style="font-family:Inter;font-weight:600;font-size:1rem;color:#f4f4f5">Fraud Detection</span>'
+        f'</div>',
+        unsafe_allow_html=True
+    )
     st.markdown("---")
 
     api_ok, health = check_api_status()
@@ -265,11 +398,11 @@ with st.sidebar:
             st.markdown(f"""
             <div class="metric-card">
                 <div class="metric-label">Version</div>
-                <div style="font-family:'IBM Plex Mono';color:#38bdf8">{info.get('version','—')}</div>
+                <div style="font-family:'JetBrains Mono';color:#5eead4;font-size:0.9rem">{info.get('version','—')}</div>
             </div>
             <div class="metric-card">
                 <div class="metric-label">Modele</div>
-                <div style="font-family:'IBM Plex Mono';color:#38bdf8">{info.get('model_type','—').upper()}</div>
+                <div style="font-family:'JetBrains Mono';color:#5eead4;font-size:0.9rem">{info.get('model_type','—').upper()}</div>
             </div>
             <div class="metric-card">
                 <div class="metric-label">Arbres</div>
@@ -290,8 +423,8 @@ with st.sidebar:
 
     st.markdown("---")
     st.markdown(
-        "<div style='font-size:0.7rem;color:#334155;font-family:IBM Plex Mono'>"
-        "IEEE-CIS Fraud Detection<br>AUC-ROC : 0.9269</div>",
+        '<div class="sidebar-model-info">'
+        'IEEE-CIS Fraud Detection<br>AUC-ROC : 0.9269</div>',
         unsafe_allow_html=True
     )
 
@@ -300,19 +433,22 @@ with st.sidebar:
 # HEADER
 # =============================================================================
 st.markdown(
-    "<h1>FRAUD DETECTION <span class='header-badge'>v1.0.0</span></h1>",
+    f'<div class="app-header">'
+    f'{SVG_SHIELD}'
+    f'<h1>Fraud Detection</h1>'
+    f'<span class="version-badge">v1.0.0</span>'
+    f'</div>',
     unsafe_allow_html=True
 )
-st.markdown("<hr>", unsafe_allow_html=True)
 
 
 # =============================================================================
 # ONGLETS
 # =============================================================================
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "Prediction manuelle",
-    "Batch CSV",
-    "Metriques du modele",
+    "Simple Prediction",
+    "Prediction par lot",
+    "Modele",
     "Historique",
     "Monitoring"
 ])
@@ -320,7 +456,10 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 
 # ------------------------------------------------------------------ ONGLET 1
 with tab1:
-    st.markdown("### Analyser une transaction")
+    st.markdown(
+        f'<div class="section-header">{SVG_ACTIVITY}<h3>Analyser une transaction</h3></div>',
+        unsafe_allow_html=True
+    )
     st.markdown(
         "Renseigne les champs ci-dessous. Les champs non renseignes "
         "utilisent la valeur par defaut -999."
@@ -379,19 +518,19 @@ with tab1:
                 st.plotly_chart(gauge_chart(proba, threshold),
                                 use_container_width=True)
             with c_result:
-                st.markdown("<br><br>", unsafe_allow_html=True)
+                st.markdown("<br>", unsafe_allow_html=True)
                 st.markdown(risk_badge(risk), unsafe_allow_html=True)
                 st.markdown("<br>", unsafe_allow_html=True)
-                verdict = "FRAUDE DETECTEE" if is_fraud else "TRANSACTION LEGITIME"
-                color   = "#ef4444" if is_fraud else "#22c55e"
+                verdict = "Fraude detectee" if is_fraud else "Transaction legitime"
+                color   = "#fca5a5" if is_fraud else "#86efac"
                 st.markdown(
-                    f"<div style='font-family:IBM Plex Mono;font-size:1rem;"
+                    f"<div style='font-family:JetBrains Mono;font-size:1rem;"
                     f"color:{color};text-align:center'>{verdict}</div>",
                     unsafe_allow_html=True
                 )
                 st.markdown(
-                    f"<div style='font-family:IBM Plex Mono;font-size:0.8rem;"
-                    f"color:#64748b;text-align:center;margin-top:8px'>"
+                    f"<div style='font-family:JetBrains Mono;font-size:0.8rem;"
+                    f"color:#a1a1aa;text-align:center;margin-top:8px'>"
                     f"Seuil : {threshold} | Proba : {proba}</div>",
                     unsafe_allow_html=True
                 )
@@ -410,7 +549,10 @@ with tab1:
 
 # ------------------------------------------------------------------ ONGLET 2
 with tab2:
-    st.markdown("### Analyse par lot - Upload CSV")
+    st.markdown(
+        f'<div class="section-header">{SVG_DATABASE}<h3>Analyse par lot</h3></div>',
+        unsafe_allow_html=True
+    )
     st.markdown(
         "Le fichier CSV doit contenir au minimum les colonnes "
         "`TransactionAmt` et `ProductCD`. "
@@ -467,13 +609,13 @@ with tab2:
                 fig_hist = px.histogram(
                     df_result, x="fraud_probability", nbins=30,
                     color="is_fraud",
-                    color_discrete_map={True: "#ef4444", False: "#22c55e"},
+                    color_discrete_map={True: "#f87171", False: "#5eead4"},
                     title="Distribution des probabilites de fraude",
                     labels={"fraud_probability": "Probabilite", "is_fraud": "Fraude"}
                 )
                 fig_hist.update_layout(
-                    paper_bgcolor="#0a0e1a", plot_bgcolor="#111827",
-                    font_color="#e2e8f0", title_font_family="IBM Plex Mono"
+                    paper_bgcolor="#141518", plot_bgcolor="#1c1d21",
+                    font_color="#f4f4f5", title_font_family="Inter"
                 )
                 st.plotly_chart(fig_hist, use_container_width=True)
 
@@ -508,7 +650,10 @@ with tab2:
 
 # ------------------------------------------------------------------ ONGLET 3
 with tab3:
-    st.markdown("### Metriques du modele")
+    st.markdown(
+        f'<div class="section-header">{SVG_BAR_CHART}<h3>Metriques du modele</h3></div>',
+        unsafe_allow_html=True
+    )
 
     info = get_model_info()
     if info:
@@ -539,39 +684,38 @@ with tab3:
                 r=values + [values[0]],
                 theta=categories + [categories[0]],
                 fill="toself",
-                fillcolor="rgba(56,189,248,0.15)",
-                line=dict(color="#38bdf8", width=2),
+                fillcolor="rgba(94,234,212,0.1)",
+                line=dict(color="#5eead4", width=2),
                 name="Modele"
             ))
             fig_radar.update_layout(
                 polar=dict(
-                    bgcolor="#111827",
+                    bgcolor="#1c1d21",
                     radialaxis=dict(visible=True, range=[0, 1],
-                                   tickfont=dict(color="#64748b")),
-                    angularaxis=dict(tickfont=dict(color="#e2e8f0"))
+                                   tickfont=dict(color="#71717a")),
+                    angularaxis=dict(tickfont=dict(color="#f4f4f5"))
                 ),
-                paper_bgcolor="#0a0e1a",
-                font_color="#e2e8f0",
+                paper_bgcolor="#141518",
+                font_color="#f4f4f5",
                 title="Profil de performance",
-                title_font_family="IBM Plex Mono",
+                title_font_family="Inter",
                 showlegend=False,
                 height=350
             )
             st.plotly_chart(fig_radar, use_container_width=True)
 
         with col_b:
-            # Matrice de confusion approchee
             st.markdown("**Contexte du modele**")
             st.markdown(f"""
             <div class="metric-card">
                 <div class="metric-label">Dataset</div>
-                <div style="font-family:'IBM Plex Mono';color:#e2e8f0">
+                <div style="font-family:'JetBrains Mono';color:#f4f4f5;font-size:0.85rem">
                     IEEE-CIS Fraud Detection
                 </div>
             </div>
             <div class="metric-card">
                 <div class="metric-label">Algorithme</div>
-                <div style="font-family:'IBM Plex Mono';color:#38bdf8">
+                <div style="font-family:'JetBrains Mono';color:#5eead4;font-size:0.85rem">
                     {info.get('model_type','—').upper()} — Ensemble XGBoost + LightGBM
                 </div>
             </div>
@@ -585,7 +729,7 @@ with tab3:
             </div>
             <div class="metric-card">
                 <div class="metric-label">Desequilibre classes</div>
-                <div style="font-family:'IBM Plex Mono';color:#e2e8f0">
+                <div style="font-family:'JetBrains Mono';color:#f4f4f5;font-size:0.85rem">
                     96.5% legitimes — 3.5% fraudes (ratio 1:27)
                 </div>
             </div>
@@ -596,7 +740,10 @@ with tab3:
 
 # ------------------------------------------------------------------ ONGLET 4
 with tab4:
-    st.markdown("### Historique des predictions")
+    st.markdown(
+        f'<div class="section-header">{SVG_CLOCK}<h3>Historique des predictions</h3></div>',
+        unsafe_allow_html=True
+    )
 
     if st.session_state.history:
         df_hist = pd.DataFrame(st.session_state.history)
@@ -613,9 +760,9 @@ with tab4:
             x=list(range(len(df_hist))),
             y=df_hist["Probabilite"],
             mode="lines+markers",
-            line=dict(color="#38bdf8", width=2),
+            line=dict(color="#5eead4", width=2),
             marker=dict(
-                color=["#ef4444" if v == "Fraude" else "#22c55e"
+                color=["#f87171" if v == "Fraude" else "#5eead4"
                        for v in df_hist["Verdict"]],
                 size=8
             ),
@@ -628,8 +775,8 @@ with tab4:
         )
         fig_line.update_layout(
             title="Evolution des probabilites de fraude",
-            paper_bgcolor="#0a0e1a", plot_bgcolor="#111827",
-            font_color="#e2e8f0", title_font_family="IBM Plex Mono",
+            paper_bgcolor="#141518", plot_bgcolor="#1c1d21",
+            font_color="#f4f4f5", title_font_family="Inter",
             xaxis_title="Index", yaxis_title="Probabilite",
             height=300
         )
@@ -656,13 +803,16 @@ with tab4:
     else:
         st.info(
             "Aucune prediction effectuee pour l'instant. "
-            "Utilise l'onglet 'Prediction manuelle' ou 'Batch CSV'."
+            "Utilise l'onglet 'Simple Prediction' ou 'Prediction par lot'."
         )
 
 
 # ------------------------------------------------------------------ ONGLET 5
 with tab5:
-    st.markdown("### Monitoring de production")
+    st.markdown(
+        f'<div class="section-header">{SVG_ACTIVITY}<h3>Monitoring de production</h3></div>',
+        unsafe_allow_html=True
+    )
 
     try:
         r = requests.get(f"{API_URL}/monitoring/stats", timeout=5)
@@ -689,14 +839,14 @@ with tab5:
                     fig_risk  = go.Figure(go.Bar(
                         x=list(risk_data.keys()),
                         y=list(risk_data.values()),
-                        marker_color=["#ef4444","#f97316","#eab308","#22c55e"]
+                        marker_color=["#f87171","#fb923c","#fbbf24","#5eead4"]
                     ))
                     fig_risk.update_layout(
                         title="Distribution des niveaux de risque",
-                        paper_bgcolor="#0a0e1a",
-                        plot_bgcolor="#111827",
-                        font_color="#e2e8f0",
-                        title_font_family="IBM Plex Mono",
+                        paper_bgcolor="#141518",
+                        plot_bgcolor="#1c1d21",
+                        font_color="#f4f4f5",
+                        title_font_family="Inter",
                         height=300
                     )
                     st.plotly_chart(fig_risk, use_container_width=True)
